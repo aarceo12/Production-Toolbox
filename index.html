@@ -218,7 +218,7 @@
   <header>
     <div class="wrap">
       <h1>Production Toolbox</h1>
-      <p class="subtitle">Phone-friendly pilot with raw weight, low-weight blending, giveaway percentage, and meat cost per lb calculators.</p>
+      <p class="subtitle">Phone-friendly pilot with raw weight, low-weight blending, giveaway percentage, meat cost per lb, and packaging rework calculators.</p>
     </div>
   </header>
 
@@ -229,6 +229,7 @@
       <button class="tab" data-tab="blend">Blend</button>
       <button class="tab" data-tab="giveaway">Giveaway %</button>
       <button class="tab" data-tab="meatcost">Meat Cost</button>
+      <button class="tab" data-tab="packrework">Packaging Rework</button>
       <button class="tab" data-tab="save">Save</button>
     </div>
 
@@ -251,6 +252,10 @@
         <div class="quick" onclick="openTab('meatcost')">
           <b>Meat Cost per Lb</b>
           <span>Enter meat code, lbs, and cost/lb to calculate total formulation cost.</span>
+        </div>
+        <div class="quick" onclick="openTab('packrework')">
+          <b>Packaging Rework %</b>
+          <span>Enter cases, case weight, and rework lbs to calculate live rework percentage.</span>
         </div>
       </div>
       <div class="note">
@@ -390,6 +395,66 @@
       </div>
     </section>
 
+
+    <section class="card tabpane hidden" id="packrework">
+      <h2>Packaging Live Rework % Calculator</h2>
+      <p class="helper">Use this while the line is running. Enter cases, case weight, and rework lbs. The rework percentage updates live as you type.</p>
+
+      <div class="grid four">
+        <div><label>Date Optional</label><input id="pr_date" type="date" oninput="calcPackagingRework()"></div>
+        <div>
+          <label>Line Optional</label>
+          <select id="pr_line" onchange="calcPackagingRework()">
+            <option></option>
+            <option>Line 1</option>
+            <option>Line 2</option>
+            <option>Line 3</option>
+            <option>Brazos Line</option>
+          </select>
+        </div>
+        <div><label>Item / Product Optional</label><input id="pr_item" placeholder="item code or product" oninput="calcPackagingRework()"></div>
+        <div>
+          <label>Shift Optional</label>
+          <select id="pr_shift" onchange="calcPackagingRework()">
+            <option></option>
+            <option>1st</option>
+            <option>2nd</option>
+            <option>3rd</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid four" style="margin-top:12px">
+        <div><label>Case Amount</label><input id="pr_cases" type="number" step="1" placeholder="example: 500" oninput="calcPackagingRework()"></div>
+        <div><label>Case Weight (lbs)</label><input id="pr_caseWeight" type="number" step="0.01" placeholder="example: 20" oninput="calcPackagingRework()"></div>
+        <div><label>Rework Lbs</label><input id="pr_reworkLbs" type="number" step="0.01" placeholder="example: 150" oninput="calcPackagingRework()"></div>
+        <div><label>Target Rework % Optional</label><input id="pr_targetPct" type="number" step="0.01" value="2" oninput="calcPackagingRework()"></div>
+        <div><label>Product Cost $/Lb Optional</label><input id="pr_costLb" type="number" step="0.01" placeholder="optional" oninput="calcPackagingRework()"></div>
+      </div>
+
+      <div class="buttons">
+        <button class="primary" onclick="calcPackagingRework()">Calculate</button>
+        <button onclick="copyPackagingRework()">Copy Result</button>
+        <button onclick="savePackagingReworkRun()">Save Run</button>
+        <button onclick="exportPackagingReworkCSV()">Export Runs</button>
+        <button class="warn" onclick="clearPackagingReworkRuns()">Clear Runs</button>
+      </div>
+
+      <div class="results">
+        <div class="pill blue"><div class="k">Packed Lbs</div><div class="v" id="pr_packedLbs">—</div><div class="s">case amount × case weight</div></div>
+        <div class="pill warn"><div class="k">Rework %</div><div class="v" id="pr_reworkPct">—</div><div class="s">rework lbs ÷ packed lbs</div></div>
+        <div class="pill good" id="pr_statusPill"><div class="k">Status</div><div class="v" id="pr_status">—</div><div class="s">compared to target %</div></div>
+        <div class="pill"><div class="k">Good Product %</div><div class="v" id="pr_goodPct">—</div><div class="s">packed lbs minus rework</div></div>
+        <div class="pill"><div class="k">Rework Lbs / 1,000 Packed Lbs</div><div class="v" id="pr_per1000">—</div><div class="s">quick comparison number</div></div>
+        <div class="pill red"><div class="k">Estimated Rework Cost</div><div class="v" id="pr_costOut">—</div><div class="s">only if cost/lb is entered</div></div>
+      </div>
+
+      <div class="note" id="pr_summary">Enter case amount, case weight, and rework lbs.</div>
+
+      <h3>Saved Runs</h3>
+      <div id="pr_savedRuns" class="note">No saved rework runs yet.</div>
+    </section>
+
     <section class="card tabpane hidden" id="save">
       <h2>Save / Load Inputs</h2>
       <p class="helper">Save your current inputs on this phone/browser. This does not send data anywhere.</p>
@@ -451,6 +516,7 @@ function runActiveCalc(){
   if(t==='blend') calcBlend();
   if(t==='giveaway') calcGiveaway();
   if(t==='meatcost') calcMeatCost();
+  if(t==='packrework') calcPackagingRework();
 }
 function copyActiveResult(){
   const t=getActiveTab();
@@ -458,6 +524,7 @@ function copyActiveResult(){
   if(t==='blend') copyBlend();
   if(t==='giveaway') copyGiveaway();
   if(t==='meatcost') copyMeatCost();
+  if(t==='packrework') copyPackagingRework();
 }
 
 function calcRaw(){
@@ -652,9 +719,152 @@ Cost per Oz: ${money(r.costOz)}`;
   alert('Copied meat cost result.');
 }
 
+
+function calcPackagingRework(){
+  const cases = num('pr_cases');
+  const caseWeight = num('pr_caseWeight');
+  const rework = num('pr_reworkLbs');
+  const target = num('pr_targetPct');
+  const cost = num('pr_costLb');
+
+  const packed = cases * caseWeight;
+  const reworkPct = packed > 0 ? rework / packed : NaN;
+  const goodPct = packed > 0 ? (packed - rework) / packed : NaN;
+  const per1000 = packed > 0 ? (rework / packed) * 1000 : NaN;
+  const estCost = Number.isFinite(cost) && cost > 0 ? rework * cost : NaN;
+
+  $('pr_packedLbs').textContent = Number.isFinite(packed) ? fmt(packed) + ' lbs' : '—';
+  $('pr_reworkPct').textContent = pct(reworkPct);
+  $('pr_goodPct').textContent = pct(goodPct);
+  $('pr_per1000').textContent = Number.isFinite(per1000) ? fmt(per1000) + ' lbs' : '—';
+  $('pr_costOut').textContent = Number.isFinite(estCost) ? money(estCost) : '—';
+
+  let status = '—';
+  let statusClass = 'pill';
+  if(Number.isFinite(reworkPct) && Number.isFinite(target)){
+    if(reworkPct * 100 <= target){
+      status = 'At/Below Target';
+      statusClass = 'pill good';
+    } else {
+      status = 'Above Target';
+      statusClass = 'pill red';
+    }
+  } else if(Number.isFinite(reworkPct)){
+    status = 'Calculated';
+    statusClass = 'pill blue';
+  }
+  $('pr_status').textContent = status;
+  $('pr_statusPill').className = statusClass;
+
+  if(Number.isFinite(packed) && Number.isFinite(reworkPct)){
+    $('pr_summary').textContent = `${fmt(cases,0)} cases × ${fmt(caseWeight)} lbs = ${fmt(packed)} packed lbs | Rework: ${fmt(rework)} lbs (${pct(reworkPct)})`;
+  } else {
+    $('pr_summary').textContent = 'Enter case amount, case weight, and rework lbs.';
+  }
+
+  return {cases,caseWeight,rework,target,cost,packed,reworkPct,goodPct,per1000,estCost,status};
+}
+
+function copyPackagingRework(){
+  const r = calcPackagingRework();
+  if(!r || !Number.isFinite(r.packed) || r.packed <= 0 || !Number.isFinite(r.rework)){
+    alert('Enter case amount, case weight, and rework lbs.');
+    return;
+  }
+  const text = `Packaging Rework % Result
+Date: ${$('pr_date').value || ''}
+Line: ${$('pr_line').value || ''}
+Shift: ${$('pr_shift').value || ''}
+Item/Product: ${$('pr_item').value || ''}
+Cases: ${fmt(r.cases,0)}
+Case Weight: ${fmt(r.caseWeight)} lbs
+Packed Lbs: ${fmt(r.packed)} lbs
+Rework Lbs: ${fmt(r.rework)} lbs
+Rework %: ${pct(r.reworkPct)}
+Good Product %: ${pct(r.goodPct)}
+Rework Lbs per 1,000 Packed Lbs: ${fmt(r.per1000)} lbs
+Status: ${r.status}
+Estimated Rework Cost: ${Number.isFinite(r.estCost) ? money(r.estCost) : '—'}`;
+  copyText(text);
+  alert('Copied packaging rework result.');
+}
+
+function getPackagingReworkRuns(){
+  try { return JSON.parse(localStorage.getItem('productionToolboxPackagingReworkRuns') || '[]'); }
+  catch { return []; }
+}
+function setPackagingReworkRuns(runs){
+  localStorage.setItem('productionToolboxPackagingReworkRuns', JSON.stringify(runs));
+}
+function savePackagingReworkRun(){
+  const r = calcPackagingRework();
+  if(!r || !Number.isFinite(r.packed) || r.packed <= 0 || !Number.isFinite(r.rework)){
+    alert('Enter case amount, case weight, and rework lbs.');
+    return;
+  }
+  const runs = getPackagingReworkRuns();
+  runs.push({
+    savedAt:new Date().toISOString(),
+    date:$('pr_date').value || '',
+    line:$('pr_line').value || '',
+    shift:$('pr_shift').value || '',
+    item:$('pr_item').value || '',
+    cases:r.cases,
+    caseWeight:r.caseWeight,
+    packed:r.packed,
+    rework:r.rework,
+    reworkPct:r.reworkPct,
+    goodPct:r.goodPct,
+    per1000:r.per1000,
+    target:r.target,
+    cost:r.cost,
+    estCost:r.estCost,
+    status:r.status
+  });
+  setPackagingReworkRuns(runs);
+  renderPackagingReworkRuns();
+  alert('Saved packaging rework run.');
+}
+function renderPackagingReworkRuns(){
+  const runs = getPackagingReworkRuns();
+  if(!runs.length){
+    $('pr_savedRuns').textContent = 'No saved rework runs yet.';
+    return;
+  }
+  $('pr_savedRuns').innerHTML = runs.map((r,i)=>`<div style="padding:8px 0;border-bottom:1px solid #d7deea">
+    <b>#${i+1} ${r.date || ''} ${r.line || ''} ${r.item || ''}</b><br>
+    ${fmt(r.cases,0)} cases × ${fmt(r.caseWeight)} lbs = ${fmt(r.packed)} lbs<br>
+    Rework: ${fmt(r.rework)} lbs | ${pct(r.reworkPct)} | ${r.status}
+  </div>`).join('');
+}
+function exportPackagingReworkCSV(){
+  const runs = getPackagingReworkRuns();
+  if(!runs.length){
+    alert('No saved rework runs to export.');
+    return;
+  }
+  const headers = ['savedAt','date','line','shift','item','cases','caseWeight','packed','rework','reworkPct','goodPct','per1000','target','cost','estCost','status'];
+  const rows = [headers.join(',')].concat(runs.map(r => headers.map(h => '"' + String(r[h] ?? '').replaceAll('"','""') + '"').join(',')));
+  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'packaging_rework_runs.csv';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+function clearPackagingReworkRuns(){
+  if(confirm('Clear all saved packaging rework runs from this phone?')){
+    setPackagingReworkRuns([]);
+    renderPackagingReworkRuns();
+  }
+}
+
 function saveAll(){
   const data={};
-  document.querySelectorAll('input').forEach(el=>{
+  document.querySelectorAll('input, select, textarea').forEach(el=>{
     if(el.id){data[el.id]=el.value}
   });
   data.__meatRows=[];
@@ -711,10 +921,13 @@ function clearSaved(){
   $('saveStatus').textContent='Saved inputs cleared.';
 }
 
+if($('pr_date')) $('pr_date').value = new Date().toISOString().slice(0,10);
 calcRaw();
 calcBlend();
 calcGiveaway();
 calcMeatCost();
+calcPackagingRework();
+renderPackagingReworkRuns();
 renumberMeatRows();
 </script>
 </body>
