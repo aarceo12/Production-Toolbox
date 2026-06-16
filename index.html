@@ -1,0 +1,721 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Production Toolbox</title>
+  <meta name="theme-color" content="#0b6bcb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Production Toolbox">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <style>
+    :root{
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --text:#111827;
+      --muted:#64748b;
+      --border:#d7deea;
+      --accent:#0b6bcb;
+      --green:#0f766e;
+      --yellow:#fffbeb;
+      --blue:#eff6ff;
+      --red:#fef2f2;
+      --shadow:0 8px 24px rgba(15,23,42,.08);
+    }
+    *{box-sizing:border-box}
+    html{-webkit-text-size-adjust:100%}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding-bottom:72px;
+    }
+    header{
+      background:linear-gradient(180deg,#dbeafe,#f5f7fb);
+      padding:18px 14px 12px;
+      border-bottom:1px solid var(--border);
+    }
+    .wrap{max-width:920px;margin:0 auto;padding:0 12px}
+    h1{margin:0;font-size:23px;line-height:1.15}
+    h2{margin:0 0 8px;font-size:20px}
+    h3{margin:14px 0 8px;font-size:15px}
+    .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+    .tabs{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      padding:12px 0 10px;
+      position:sticky;
+      top:0;
+      background:var(--bg);
+      z-index:20;
+      -webkit-overflow-scrolling:touch;
+    }
+    .tab{
+      white-space:nowrap;
+      min-height:44px;
+      padding:10px 14px;
+      border:1px solid var(--border);
+      background:#fff;
+      color:var(--text);
+      border-radius:999px;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:bold;
+      box-shadow:0 1px 4px rgba(15,23,42,.04);
+    }
+    .tab.active{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:15px;
+      box-shadow:var(--shadow);
+      margin:10px 0 14px;
+    }
+    .helper{color:var(--muted);font-size:13px;line-height:1.4;margin:4px 0 12px}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:760px){
+      .grid.two{grid-template-columns:repeat(2,1fr)}
+      .grid.three{grid-template-columns:repeat(3,1fr)}
+      .grid.four{grid-template-columns:repeat(4,1fr)}
+    }
+    label{font-size:12px;color:var(--muted);display:block;margin-bottom:5px;font-weight:bold}
+    input{
+      width:100%;
+      min-height:46px;
+      padding:10px 11px;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      background:#fff;
+      font-size:16px;
+    }
+    input:focus{outline:3px solid rgba(11,107,203,.22);border-color:var(--accent)}
+    .buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+    button{
+      min-height:44px;
+      padding:10px 14px;
+      border:1px solid var(--border);
+      border-radius:13px;
+      background:#fff;
+      cursor:pointer;
+      font-weight:bold;
+      font-size:14px;
+    }
+    button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+    button.good{background:var(--green);border-color:var(--green);color:#fff}
+    button.warn{background:#fff7ed;border-color:#fdba74;color:#92400e}
+    .results{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+    @media(min-width:760px){.results{grid-template-columns:repeat(3,1fr)}}
+    .pill{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:15px;
+      padding:12px;
+      min-height:80px;
+    }
+    .pill.good{background:#ecfdf5;border-color:#bbf7d0}
+    .pill.blue{background:var(--blue);border-color:#bfdbfe}
+    .pill.warn{background:var(--yellow);border-color:#fde68a}
+    .pill.red{background:var(--red);border-color:#fecaca}
+    .pill .k{font-size:12px;color:var(--muted);font-weight:bold}
+    .pill .v{font-size:22px;font-weight:800;margin-top:4px;word-break:break-word}
+    .pill .s{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.3}
+    .hidden{display:none}
+    .note{
+      background:#f8fafc;
+      border:1px dashed #cbd5e1;
+      border-radius:13px;
+      padding:11px;
+      font-size:13px;
+      color:#334155;
+      line-height:1.42;
+      margin-top:12px;
+    }
+    .quick-grid{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
+    @media(min-width:760px){.quick-grid{grid-template-columns:repeat(2,1fr)}}
+    .quick{
+      border:1px solid var(--border);
+      border-radius:15px;
+      background:#fff;
+      padding:12px;
+      cursor:pointer;
+    }
+    .quick b{display:block;font-size:14px;margin-bottom:3px}
+    .quick span{display:block;color:var(--muted);font-size:12px;line-height:1.3}
+    .idea{
+      border:1px solid var(--border);
+      background:#fff;
+      border-radius:14px;
+      padding:12px;
+      margin:8px 0;
+    }
+    .idea b{display:block;margin-bottom:4px}
+    .idea span{display:block;color:var(--muted);font-size:13px;line-height:1.35}
+    .status{font-size:13px;color:var(--muted);margin-top:8px;min-height:18px}
+    .footer{
+      color:var(--muted);
+      font-size:12px;
+      text-align:center;
+      padding:12px 0 8px;
+      line-height:1.35;
+    }
+    .sticky-actions{
+      position:fixed;
+      bottom:0;
+      left:0;
+      right:0;
+      background:#ffffff;
+      border-top:1px solid var(--border);
+      padding:9px 12px calc(9px + env(safe-area-inset-bottom));
+      display:flex;
+      gap:8px;
+      z-index:30;
+      box-shadow:0 -6px 18px rgba(15,23,42,.08);
+    }
+    .sticky-actions button{flex:1;min-height:46px}
+    .formula-row{
+      border:1px solid var(--border);
+      border-radius:15px;
+      padding:12px;
+      margin:10px 0;
+      background:#fff;
+    }
+    .row-title{
+      font-weight:bold;
+      font-size:13px;
+      color:#334155;
+      margin-bottom:8px;
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+    }
+    .mini-btn{
+      min-height:34px;
+      padding:6px 10px;
+      font-size:12px;
+      border-radius:10px;
+    }
+    .line-total{
+      margin-top:8px;
+      font-size:13px;
+      color:var(--muted);
+      font-weight:bold;
+    }
+    @media(min-width:900px){
+      .sticky-actions{display:none}
+      body{padding-bottom:0}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Production Toolbox</h1>
+      <p class="subtitle">Phone-friendly pilot with raw weight, low-weight blending, giveaway percentage, and meat cost per lb calculators.</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="tabs">
+      <button class="tab active" data-tab="home">Home</button>
+      <button class="tab" data-tab="raw">Raw Weight</button>
+      <button class="tab" data-tab="blend">Blend</button>
+      <button class="tab" data-tab="giveaway">Giveaway %</button>
+      <button class="tab" data-tab="meatcost">Meat Cost</button>
+      <button class="tab" data-tab="save">Save</button>
+    </div>
+
+    <section class="card tabpane" id="home">
+      <h2>Quick Start</h2>
+      <p class="helper">This version stays simple so you can test it on your phone before adding more tools.</p>
+      <div class="quick-grid">
+        <div class="quick" onclick="openTab('raw')">
+          <b>Kitchen Raw Weight</b>
+          <span>Find the raw oz needed to hit target after smokehouse loss, chill loss, and giveaway.</span>
+        </div>
+        <div class="quick" onclick="openTab('blend')">
+          <b>Low-Weight Blending</b>
+          <span>Plan the heavy batch needed to blend low-weight product back to target.</span>
+        </div>
+        <div class="quick" onclick="openTab('giveaway')">
+          <b>Giveaway %</b>
+          <span>Enter target and actual package weight to calculate giveaway percentage instantly.</span>
+        </div>
+        <div class="quick" onclick="openTab('meatcost')">
+          <b>Meat Cost per Lb</b>
+          <span>Enter meat code, lbs, and cost/lb to calculate total formulation cost.</span>
+        </div>
+      </div>
+      <div class="note">
+        Phone tip: after opening this file on your phone, use the browser share/menu button and choose <b>Add to Home Screen</b> so it works like an app shortcut.
+      </div>
+    </section>
+
+    <section class="card tabpane hidden" id="raw">
+      <h2>Kitchen Raw Weight Calculator</h2>
+      <p class="helper">Use this when you know the finished target and need the raw target to account for expected losses.</p>
+      <div class="grid four">
+        <div><label>Target Final Weight (oz)</label><input id="raw_finalWeight" type="number" step="0.01" value="46"></div>
+        <div><label>Smokehouse Loss %</label><input id="raw_smokeLoss" type="number" step="0.01" value="8"></div>
+        <div><label>Chill Loss %</label><input id="raw_chillLoss" type="number" step="0.01" value="1"></div>
+        <div><label>Giveaway %</label><input id="raw_giveaway" type="number" step="0.01" value="1.5"></div>
+      </div>
+      <div class="buttons"><button class="primary" onclick="calcRaw()">Calculate</button><button onclick="copyRaw()">Copy Result</button></div>
+      <div class="results">
+        <div class="pill blue"><div class="k">Required Raw Weight</div><div class="v" id="raw_required">—</div><div class="s">oz before losses</div></div>
+        <div class="pill"><div class="k">Net Yield</div><div class="v" id="raw_yield">—</div><div class="s">(1-smoke)(1-chill)(1-give)</div></div>
+        <div class="pill warn"><div class="k">Expected Loss</div><div class="v" id="raw_loss">—</div><div class="s">raw oz - finished oz</div></div>
+      </div>
+      <div class="note">Formula: Raw Weight = Final Target ÷ ((1 - Smoke Loss) × (1 - Chill Loss) × (1 - Giveaway)).</div>
+    </section>
+
+    <section class="card tabpane hidden" id="blend">
+      <h2>Low-Weight Blending Calculator</h2>
+      <p class="helper">Use this to plan how heavy the make-up product needs to be when blending low-weight packs with a heavier batch.</p>
+      <div class="grid four">
+        <div><label>Low-Weight Pack Avg (oz)</label><input id="blend_lowAvg" type="number" step="0.01" value="33.2"></div>
+        <div><label>Target Pack Weight (oz)</label><input id="blend_target" type="number" step="0.01" value="33.6"></div>
+        <div><label>Low Ratio</label><input id="blend_ratioL" type="number" step="0.01" value="4"></div>
+        <div><label>Heavy Ratio</label><input id="blend_ratioH" type="number" step="0.01" value="3"></div>
+        <div><label>Buffer %</label><input id="blend_buffer" type="number" step="0.01" value="1"></div>
+        <div><label>Total Low-Weight Lbs</label><input id="blend_lowLbs" type="number" step="0.01" value="2576"></div>
+        <div><label>Smokehouse Loss %</label><input id="blend_smokeLoss" type="number" step="0.01" value="10"></div>
+        <div><label>Chill Loss %</label><input id="blend_chillLoss" type="number" step="0.01" value="1"></div>
+        <div><label>Giveaway %</label><input id="blend_giveLoss" type="number" step="0.01" value="2"></div>
+        <div><label>Links per Pack</label><input id="blend_links" type="number" step="1" value="7"></div>
+        <div><label>Block Weight (lbs)</label><input id="blend_blockWt" type="number" step="0.01" value="165"></div>
+      </div>
+      <div class="buttons"><button class="primary" onclick="calcBlend()">Calculate</button><button onclick="copyBlend()">Copy Result</button></div>
+      <div class="results">
+        <div class="pill good"><div class="k">Heavy Pack Target</div><div class="v" id="blend_heavyTarget">—</div><div class="s">oz/pack with buffer</div></div>
+        <div class="pill good"><div class="k">Heavy Link Weight</div><div class="v" id="blend_linkOz">—</div><div class="s">oz/link cooked</div></div>
+        <div class="pill"><div class="k">Raw Link Weight</div><div class="v" id="blend_rawLinkOz">—</div><div class="s">oz/link raw before losses</div></div>
+        <div class="pill"><div class="k">Heavy Cooked Lbs Needed</div><div class="v" id="blend_cookedLbs">—</div><div class="s">lbs cooked to blend</div></div>
+        <div class="pill"><div class="k">Heavy Raw Lbs Needed</div><div class="v" id="blend_rawLbs">—</div><div class="s">lbs raw before losses</div></div>
+        <div class="pill warn"><div class="k">Blocks to Make</div><div class="v" id="blend_blocks">—</div><div class="s">ceil(raw ÷ block weight)</div></div>
+        <div class="pill"><div class="k">Expected Cooked from Blocks</div><div class="v" id="blend_cookFromBlocks">—</div><div class="s">after loss estimate</div></div>
+        <div class="pill"><div class="k">Net Yield %</div><div class="v" id="blend_yield">—</div><div class="s">smoke/chill/giveaway yield</div></div>
+        <div class="pill"><div class="k">Links Planned</div><div class="v" id="blend_totalLinks">—</div><div class="s">based on cooked lbs/link weight</div></div>
+      </div>
+    </section>
+
+    <section class="card tabpane hidden" id="giveaway">
+      <h2>Giveaway Percentage Calculator</h2>
+      <p class="helper">Use this when you want to know the giveaway percentage from a package without doing the math.</p>
+      <div class="grid four">
+        <div><label>Target Pack Weight (oz)</label><input id="give_target" type="number" step="0.01" value="33.60"></div>
+        <div><label>Actual Avg Pack Weight (oz)</label><input id="give_actual" type="number" step="0.01" value="33.90"></div>
+        <div><label>Packs Produced Optional</label><input id="give_packs" type="number" step="1" placeholder="optional"></div>
+        <div><label>Product Cost $/Lb Optional</label><input id="give_cost" type="number" step="0.01" placeholder="optional"></div>
+      </div>
+      <div class="buttons"><button class="primary" onclick="calcGiveaway()">Calculate</button><button onclick="copyGiveaway()">Copy Result</button></div>
+      <div class="results">
+        <div class="pill blue"><div class="k">Giveaway %</div><div class="v" id="give_percent">—</div><div class="s">(actual - target) ÷ target</div></div>
+        <div class="pill warn"><div class="k">Ounces Over Target</div><div class="v" id="give_oz">—</div><div class="s">actual avg - target</div></div>
+        <div class="pill"><div class="k">Lbs per 1,000 Packs</div><div class="v" id="give_lbs1000">—</div><div class="s">quick impact estimate</div></div>
+        <div class="pill"><div class="k">Total Giveaway Lbs</div><div class="v" id="give_totalLbs">—</div><div class="s">only if packs produced is entered</div></div>
+        <div class="pill red"><div class="k">Estimated Cost</div><div class="v" id="give_costOut">—</div><div class="s">only if packs and $/lb are entered</div></div>
+        <div class="pill good"><div class="k">Status</div><div class="v" id="give_status">—</div><div class="s">based on actual vs target</div></div>
+      </div>
+      <div class="note">
+        Example: target 33.60 oz and actual 33.90 oz = 0.30 oz over target. 0.30 ÷ 33.60 = 0.89% giveaway.
+      </div>
+    </section>
+
+    <section class="card tabpane hidden" id="meatcost">
+      <h2>Meat Cost per Lb Calculator</h2>
+      <p class="helper">Enter each meat code or ingredient, pounds used, and price per pound. This gives the total formula cost and weighted average cost/lb.</p>
+
+      <div id="formulaRows">
+        <div class="formula-row">
+          <div class="row-title">Ingredient 1</div>
+          <div class="grid three">
+            <div><label>Code / Ingredient</label><input class="mc_name" value="107"></div>
+            <div><label>Lbs Used</label><input class="mc_lbs" type="number" step="0.01" value="85"></div>
+            <div><label>Cost $/Lb</label><input class="mc_cost" type="number" step="0.01" value="1.97"></div>
+          </div>
+          <div class="line-total">Line Total: <span class="mc_line_total">—</span></div>
+        </div>
+
+        <div class="formula-row">
+          <div class="row-title">Ingredient 2</div>
+          <div class="grid three">
+            <div><label>Code / Ingredient</label><input class="mc_name" value="116"></div>
+            <div><label>Lbs Used</label><input class="mc_lbs" type="number" step="0.01" value="65"></div>
+            <div><label>Cost $/Lb</label><input class="mc_cost" type="number" step="0.01" value="4.18"></div>
+          </div>
+          <div class="line-total">Line Total: <span class="mc_line_total">—</span></div>
+        </div>
+
+        <div class="formula-row">
+          <div class="row-title">Ingredient 3</div>
+          <div class="grid three">
+            <div><label>Code / Ingredient</label><input class="mc_name" value="Angus Beef"></div>
+            <div><label>Lbs Used</label><input class="mc_lbs" type="number" step="0.01" value="0"></div>
+            <div><label>Cost $/Lb</label><input class="mc_cost" type="number" step="0.01" value="3.85"></div>
+          </div>
+          <div class="line-total">Line Total: <span class="mc_line_total">—</span></div>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <div><label>Finished Yield % Optional</label><input id="mc_yield" type="number" step="0.01" placeholder="example: 90"></div>
+        <div><label>Pack Weight oz Optional</label><input id="mc_packoz" type="number" step="0.01" placeholder="example: 33.6"></div>
+      </div>
+
+      <div class="buttons">
+        <button onclick="addMeatRow()">Add Ingredient</button>
+        <button class="primary" onclick="calcMeatCost()">Calculate</button>
+        <button onclick="copyMeatCost()">Copy Result</button>
+      </div>
+
+      <div class="results">
+        <div class="pill blue"><div class="k">Total Formula Lbs</div><div class="v" id="mc_totalLbs">—</div><div class="s">sum of lbs used</div></div>
+        <div class="pill"><div class="k">Total Formula Cost</div><div class="v" id="mc_totalCost">—</div><div class="s">sum of lbs × cost/lb</div></div>
+        <div class="pill good"><div class="k">Raw Cost per Lb</div><div class="v" id="mc_costLb">—</div><div class="s">weighted average cost/lb</div></div>
+        <div class="pill warn"><div class="k">Finished Cost per Lb</div><div class="v" id="mc_finishedCostLb">—</div><div class="s">only if yield % is entered</div></div>
+        <div class="pill"><div class="k">Cost per Pack</div><div class="v" id="mc_packCost">—</div><div class="s">only if pack oz is entered</div></div>
+        <div class="pill"><div class="k">Cost per Oz</div><div class="v" id="mc_costOz">—</div><div class="s">raw cost/lb ÷ 16</div></div>
+      </div>
+
+      <div class="note">
+        Use the finished yield % only if you want to estimate the cost after cook/chill loss. If you only want raw formula cost, leave yield blank.
+      </div>
+    </section>
+
+    <section class="card tabpane hidden" id="save">
+      <h2>Save / Load Inputs</h2>
+      <p class="helper">Save your current inputs on this phone/browser. This does not send data anywhere.</p>
+      <div class="buttons">
+        <button class="primary" onclick="saveAll()">Save Current Inputs</button>
+        <button onclick="loadAll()">Load Saved Inputs</button>
+        <button class="warn" onclick="clearSaved()">Clear Saved Inputs</button>
+      </div>
+      <div class="status" id="saveStatus"></div>
+      <div class="note">
+        Use this after entering your common losses, target weights, block weight, ratio, links per pack, and meat prices.
+      </div>
+    </section>
+
+    <div class="footer">Pilot offline HTML tool. Review calculations before using for official production decisions.</div>
+  </main>
+
+  <div class="sticky-actions">
+    <button class="primary" onclick="runActiveCalc()">Calculate</button>
+    <button onclick="copyActiveResult()">Copy</button>
+  </div>
+
+<script>
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value);
+const fmt = (n,d=2) => Number.isFinite(n) ? Number(n).toFixed(d) : '—';
+const pct = n => Number.isFinite(n) ? (n*100).toFixed(2)+'%' : '—';
+const money = n => Number.isFinite(n) ? '$'+Number(n).toFixed(2) : '—';
+
+function openTab(id){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tabpane').forEach(p=>p.classList.add('hidden'));
+  document.querySelector(`.tab[data-tab="${id}"]`).classList.add('active');
+  $(id).classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click',()=>openTab(btn.dataset.tab));
+});
+
+function getActiveTab(){
+  const active=document.querySelector('.tab.active');
+  return active ? active.dataset.tab : 'home';
+}
+function copyText(text){
+  if(navigator.clipboard){navigator.clipboard.writeText(text);}
+  else {
+    const ta=document.createElement('textarea');
+    ta.value=text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+}
+function runActiveCalc(){
+  const t=getActiveTab();
+  if(t==='raw') calcRaw();
+  if(t==='blend') calcBlend();
+  if(t==='giveaway') calcGiveaway();
+  if(t==='meatcost') calcMeatCost();
+}
+function copyActiveResult(){
+  const t=getActiveTab();
+  if(t==='raw') copyRaw();
+  if(t==='blend') copyBlend();
+  if(t==='giveaway') copyGiveaway();
+  if(t==='meatcost') copyMeatCost();
+}
+
+function calcRaw(){
+  const finalWeight=num('raw_finalWeight');
+  const smoke=num('raw_smokeLoss')/100;
+  const chill=num('raw_chillLoss')/100;
+  const give=num('raw_giveaway')/100;
+  if([finalWeight,smoke,chill,give].some(v=>!Number.isFinite(v))){
+    alert('Fill in all fields with valid numbers.');
+    return;
+  }
+  const net=(1-smoke)*(1-chill)*(1-give);
+  const raw=finalWeight/net;
+  $('raw_required').textContent=fmt(raw)+' oz';
+  $('raw_yield').textContent=pct(net);
+  $('raw_loss').textContent=fmt(raw-finalWeight)+' oz';
+  return {finalWeight, smoke, chill, give, net, raw};
+}
+function copyRaw(){
+  const r=calcRaw(); if(!r)return;
+  copyText(`Kitchen Raw Weight Result
+Target Final: ${fmt(r.finalWeight)} oz
+Net Yield: ${pct(r.net)}
+Required Raw Weight: ${fmt(r.raw)} oz
+Expected Loss: ${fmt(r.raw-r.finalWeight)} oz`);
+  alert('Copied raw weight result.');
+}
+
+function calcBlend(){
+  const lowAvg=num('blend_lowAvg'), target=num('blend_target'), L=num('blend_ratioL'), H=num('blend_ratioH'), buf=num('blend_buffer')/100, lowLbs=num('blend_lowLbs');
+  const smoke=num('blend_smokeLoss')/100, chill=num('blend_chillLoss')/100, give=num('blend_giveLoss')/100, links=num('blend_links'), block=num('blend_blockWt');
+  if([lowAvg,target,L,H,lowLbs,smoke,chill,give,links,block].some(v=>!Number.isFinite(v)||v<=0)){
+    alert('Fill in all fields with valid positive numbers.');
+    return;
+  }
+  const heavyNoBuf=(target*(L+H)-L*lowAvg)/H;
+  const heavyTarget=heavyNoBuf*(1+buf);
+  const linkOz=heavyTarget/links;
+  const netYield=(1-smoke)*(1-chill)*(1-give);
+  const rawLinkOz=linkOz/netYield;
+  const cookedLbs=lowLbs*(H/L);
+  const rawLbs=cookedLbs/netYield;
+  const blocks=Math.ceil(rawLbs/block);
+  const cookFromBlocks=blocks*block*netYield;
+  const totalLinks=(cookedLbs*16)/linkOz;
+
+  $('blend_heavyTarget').textContent=fmt(heavyTarget);
+  $('blend_linkOz').textContent=fmt(linkOz);
+  $('blend_rawLinkOz').textContent=fmt(rawLinkOz);
+  $('blend_cookedLbs').textContent=fmt(cookedLbs);
+  $('blend_rawLbs').textContent=fmt(rawLbs);
+  $('blend_blocks').textContent=blocks;
+  $('blend_cookFromBlocks').textContent=fmt(cookFromBlocks);
+  $('blend_yield').textContent=pct(netYield);
+  $('blend_totalLinks').textContent=fmt(totalLinks,0);
+  return {lowAvg,target,L,H,buf,lowLbs,heavyTarget,linkOz,rawLinkOz,cookedLbs,rawLbs,blocks,cookFromBlocks,totalLinks,netYield};
+}
+function copyBlend(){
+  const r=calcBlend(); if(!r)return;
+  copyText(`Low-Weight Blend Result
+Low Avg: ${fmt(r.lowAvg)} oz | Target: ${fmt(r.target)} oz | Ratio Low:Heavy = ${r.L}:${r.H}
+Heavy Target: ${fmt(r.heavyTarget)} oz/pack
+Heavy Link Weight: ${fmt(r.linkOz)} oz cooked
+Raw Link Weight: ${fmt(r.rawLinkOz)} oz raw
+Heavy Cooked Lbs Needed: ${fmt(r.cookedLbs)}
+Heavy Raw Lbs Needed: ${fmt(r.rawLbs)}
+Blocks to Make: ${r.blocks}
+Expected Cooked from Blocks: ${fmt(r.cookFromBlocks)}
+Net Yield: ${pct(r.netYield)}`);
+  alert('Copied blend result.');
+}
+
+function calcGiveaway(){
+  const target=num('give_target');
+  const actual=num('give_actual');
+  const packs=num('give_packs');
+  const cost=num('give_cost');
+  if([target,actual].some(v=>!Number.isFinite(v)) || target <= 0){
+    alert('Fill in target and actual package weight.');
+    return;
+  }
+
+  const ozOver = actual - target;
+  const giveawayPct = ozOver / target;
+  const lbsPer1000 = (ozOver * 1000) / 16;
+  const totalLbs = Number.isFinite(packs) && packs > 0 ? (ozOver * packs) / 16 : NaN;
+  const estCost = Number.isFinite(totalLbs) && Number.isFinite(cost) && cost > 0 ? totalLbs * cost : NaN;
+
+  $('give_percent').textContent = pct(giveawayPct);
+  $('give_oz').textContent = fmt(ozOver) + ' oz';
+  $('give_lbs1000').textContent = fmt(lbsPer1000) + ' lbs';
+  $('give_totalLbs').textContent = Number.isFinite(totalLbs) ? fmt(totalLbs) + ' lbs' : '—';
+  $('give_costOut').textContent = Number.isFinite(estCost) ? money(estCost) : '—';
+
+  let status = 'At Target';
+  if(ozOver > 0) status = 'Over Target';
+  if(ozOver < 0) status = 'Under Target';
+  $('give_status').textContent = status;
+
+  return {target,actual,packs,cost,ozOver,giveawayPct,lbsPer1000,totalLbs,estCost,status};
+}
+function copyGiveaway(){
+  const r=calcGiveaway(); if(!r)return;
+  let text = `Giveaway Percentage Result
+Target Pack Weight: ${fmt(r.target)} oz
+Actual Avg Pack Weight: ${fmt(r.actual)} oz
+Ounces Over/Under Target: ${fmt(r.ozOver)} oz
+Giveaway %: ${pct(r.giveawayPct)}
+Lbs per 1,000 Packs: ${fmt(r.lbsPer1000)} lbs
+Status: ${r.status}`;
+  if(Number.isFinite(r.totalLbs)) text += `\nTotal Giveaway Lbs: ${fmt(r.totalLbs)} lbs`;
+  if(Number.isFinite(r.estCost)) text += `\nEstimated Cost: ${money(r.estCost)}`;
+  copyText(text);
+  alert('Copied giveaway result.');
+}
+
+function renumberMeatRows(){
+  document.querySelectorAll('#formulaRows .formula-row').forEach((row, idx)=>{
+    const title=row.querySelector('.row-title');
+    if(title) title.innerHTML = `Ingredient ${idx+1}${idx>=3 ? ' <button class="mini-btn warn" onclick="removeMeatRow(this)">Remove</button>' : ''}`;
+  });
+}
+function addMeatRow(){
+  const div=document.createElement('div');
+  div.className='formula-row';
+  div.innerHTML=`
+    <div class="row-title">Ingredient</div>
+    <div class="grid three">
+      <div><label>Code / Ingredient</label><input class="mc_name" value=""></div>
+      <div><label>Lbs Used</label><input class="mc_lbs" type="number" step="0.01" value="0"></div>
+      <div><label>Cost $/Lb</label><input class="mc_cost" type="number" step="0.01" value="0"></div>
+    </div>
+    <div class="line-total">Line Total: <span class="mc_line_total">—</span></div>`;
+  $('formulaRows').appendChild(div);
+  renumberMeatRows();
+}
+function removeMeatRow(btn){
+  const row=btn.closest('.formula-row');
+  if(row) row.remove();
+  renumberMeatRows();
+  calcMeatCost();
+}
+function calcMeatCost(){
+  let totalLbs=0;
+  let totalCost=0;
+  const lines=[];
+  document.querySelectorAll('#formulaRows .formula-row').forEach(row=>{
+    const name=row.querySelector('.mc_name').value.trim() || 'Ingredient';
+    const lbs=parseFloat(row.querySelector('.mc_lbs').value) || 0;
+    const cost=parseFloat(row.querySelector('.mc_cost').value) || 0;
+    const lineTotal=lbs*cost;
+    row.querySelector('.mc_line_total').textContent=money(lineTotal);
+    if(lbs > 0){
+      totalLbs += lbs;
+      totalCost += lineTotal;
+      lines.push({name,lbs,cost,lineTotal});
+    }
+  });
+
+  const costLb = totalLbs > 0 ? totalCost / totalLbs : NaN;
+  const costOz = costLb / 16;
+  const yieldPct = num('mc_yield');
+  const packOz = num('mc_packoz');
+  const finishedCostLb = Number.isFinite(yieldPct) && yieldPct > 0 ? costLb / (yieldPct/100) : NaN;
+  const packCost = Number.isFinite(packOz) && packOz > 0 ? (packOz/16) * (Number.isFinite(finishedCostLb) ? finishedCostLb : costLb) : NaN;
+
+  $('mc_totalLbs').textContent=fmt(totalLbs)+' lbs';
+  $('mc_totalCost').textContent=money(totalCost);
+  $('mc_costLb').textContent=money(costLb);
+  $('mc_finishedCostLb').textContent=Number.isFinite(finishedCostLb) ? money(finishedCostLb) : '—';
+  $('mc_packCost').textContent=Number.isFinite(packCost) ? money(packCost) : '—';
+  $('mc_costOz').textContent=money(costOz);
+
+  return {totalLbs,totalCost,costLb,costOz,yieldPct,finishedCostLb,packOz,packCost,lines};
+}
+function copyMeatCost(){
+  const r=calcMeatCost(); if(!r || !Number.isFinite(r.costLb)){
+    alert('Enter at least one ingredient with lbs and cost.');
+    return;
+  }
+  let text='Meat Cost per Lb Result\n';
+  r.lines.forEach(line=>{
+    text += `${line.name}: ${fmt(line.lbs)} lbs × ${money(line.cost)}/lb = ${money(line.lineTotal)}\n`;
+  });
+  text += `Total Formula Lbs: ${fmt(r.totalLbs)} lbs
+Total Formula Cost: ${money(r.totalCost)}
+Raw Cost per Lb: ${money(r.costLb)}
+Cost per Oz: ${money(r.costOz)}`;
+  if(Number.isFinite(r.finishedCostLb)) text += `\nFinished Cost per Lb at ${fmt(r.yieldPct)}% yield: ${money(r.finishedCostLb)}`;
+  if(Number.isFinite(r.packCost)) text += `\nEstimated Cost per ${fmt(r.packOz)} oz pack: ${money(r.packCost)}`;
+  copyText(text);
+  alert('Copied meat cost result.');
+}
+
+function saveAll(){
+  const data={};
+  document.querySelectorAll('input').forEach(el=>{
+    if(el.id){data[el.id]=el.value}
+  });
+  data.__meatRows=[];
+  document.querySelectorAll('#formulaRows .formula-row').forEach(row=>{
+    data.__meatRows.push({
+      name: row.querySelector('.mc_name').value,
+      lbs: row.querySelector('.mc_lbs').value,
+      cost: row.querySelector('.mc_cost').value
+    });
+  });
+  localStorage.setItem('productionToolboxPilotDataV3',JSON.stringify(data));
+  $('saveStatus').textContent='Saved on this phone/browser.';
+}
+function loadAll(){
+  const raw=localStorage.getItem('productionToolboxPilotDataV3');
+  if(!raw){$('saveStatus').textContent='No saved inputs found.';return;}
+  const data=JSON.parse(raw);
+
+  if(Array.isArray(data.__meatRows) && data.__meatRows.length){
+    $('formulaRows').innerHTML='';
+    data.__meatRows.forEach((r)=>{
+      const div=document.createElement('div');
+      div.className='formula-row';
+      div.innerHTML=`
+        <div class="row-title">Ingredient</div>
+        <div class="grid three">
+          <div><label>Code / Ingredient</label><input class="mc_name"></div>
+          <div><label>Lbs Used</label><input class="mc_lbs" type="number" step="0.01"></div>
+          <div><label>Cost $/Lb</label><input class="mc_cost" type="number" step="0.01"></div>
+        </div>
+        <div class="line-total">Line Total: <span class="mc_line_total">—</span></div>`;
+      div.querySelector('.mc_name').value=r.name;
+      div.querySelector('.mc_lbs').value=r.lbs;
+      div.querySelector('.mc_cost').value=r.cost;
+      $('formulaRows').appendChild(div);
+    });
+    renumberMeatRows();
+  }
+
+  Object.keys(data).forEach(id=>{
+    if(id.startsWith('__')) return;
+    const el=$(id);
+    if(el) el.value=data[id];
+  });
+
+  $('saveStatus').textContent='Loaded saved inputs.';
+  calcRaw();
+  calcBlend();
+  calcGiveaway();
+  calcMeatCost();
+}
+function clearSaved(){
+  localStorage.removeItem('productionToolboxPilotDataV3');
+  $('saveStatus').textContent='Saved inputs cleared.';
+}
+
+calcRaw();
+calcBlend();
+calcGiveaway();
+calcMeatCost();
+renumberMeatRows();
+</script>
+</body>
+</html>
